@@ -104,11 +104,11 @@
       ctx.fill();
     }
 
-    // เรียกวาดเริ่มต้นเลย
-    drawWheel();
-
-    // ปุ่มกดเพื่อหมุนวงล้อใหม่
-    spinBtn.addEventListener("click", drawWheel);
+    // เรียกวาดทันทีเมื่อหน้าโหลดเสร็จ
+    window.onload = function () {
+      drawWheel();
+      spinBtn.addEventListener("click", drawWheel);
+    };
   </script>
 </body>
 </html>
