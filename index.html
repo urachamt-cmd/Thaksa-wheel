@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>วงล้อทักษาพยากรณ์</title>
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    canvas {
+      margin-top: 20px;
+    }
+    select, button {
+      font-size: 18px;
+      padding: 5px 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>วงล้อทักษาพยากรณ์</h1>
+  <label for="birthColor">เลือกสีประจำวันเกิดของคุณ:</label>
+  <select id="birthColor">
+    <option value="แดง">แดง (อาทิตย์)</option>
+    <option value="เหลือง">เหลือง (จันทร์)</option>
+    <option value="ชมพู">ชมพู (อังคาร)</option>
+    <option value="เขียว">เขียว (พุธ)</option>
+    <option value="ส้ม">ส้ม (พฤหัสบดี)</option>
+    <option value="ฟ้า">ฟ้า (ศุกร์)</option>
+    <option value="ม่วง">ม่วง (เสาร์)</option>
+    <option value="ดำ">ดำ (ราหู)</option>
+  </select>
+  <button onclick="drawWheel()">หมุนวงล้อ</button>
+
+  <canvas id="wheel" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+
+    const colors = ["แดง", "เหลือง", "ชมพู", "เขียว", "ฟ้า", "ดำ", "ส้ม", "ม่วง"];
+    const colorMap = {
+      "แดง": "#FF0000",
+      "เหลือง": "#FFD700",
+      "ชมพู": "#FFB6C1",
+      "เขียว": "#32CD32",
+      "ฟ้า": "#87CEEB",
+      "ดำ": "#000000",
+      "ส้ม": "#FFA500",
+      "ม่วง": "#9370DB"
+    };
+
+    const thaksa = ["คนรอบข้าง", "สุขภาพ ความมั่นคง", "อำนาจ บารมี
+", "ความรัก เงินทอง
+", "ทรัพย์สมบัติ ที่ดิน
+", "งาน อาชีพ
+", "คนอุปถัมภ์ ผู้ใหญ่
+", "ปัญหา ความยุ่งยาก
+"];
+
+    function rotateThaksa(dayColor) {
+      const index = colors.indexOf(dayColor);
+      return [...thaksa.slice(index), ...thaksa.slice(0, index)];
+    }
+
+    function drawWheel() {
+      const selectedColor = document.getElementById("birthColor").value;
+      const rotatedThaksa = rotateThaksa(selectedColor);
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 150;
+      const angleStep = 2 * Math.PI / 8;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 8; i++) {
+        // วาดวงใน
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.fillStyle = colorMap[colors[i]];
+        ctx.arc(centerX, centerY, radius, i * angleStep, (i + 1) * angleStep);
+        ctx.fill();
+        ctx.closePath();
+
+        // วาดข้อความด้านนอก
+        const labelAngle = i * angleStep + angleStep / 2;
+        const labelX = centerX + (radius + 30) * Math.cos(labelAngle);
+        const labelY = centerY + (radius + 30) * Math.sin(labelAngle);
+
+        ctx.fillStyle = "black";
+        ctx.font = "16px Kanit";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(rotatedThaksa[i], labelX, labelY);
+      }
+
+      // วงกลมตรงกลาง
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+    }
+  </script>
+</body>
+</html>
