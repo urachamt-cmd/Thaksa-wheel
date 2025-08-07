@@ -50,8 +50,8 @@
 
       // ทักษาพยากรณ์รอบนอกคงที่
       const labels = ['บริวาร','อายุ','เดช','ศรี','มูละ','อุตสาหะ','มนตรี','กาลกิณี'];
-      // สีที่เรียงตามเข็มนาฬิกาคงที่
-      const colors = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า'];
+      // สีเรียงตามเข็มนาฬิกาคงที่
+      const baseColors = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า'];
       const colorMap = {
         'แดง': '#FF0000',
         'เหลือง': '#FFD700',
@@ -69,32 +69,34 @@
       const cy = canvas.height / 2;
       const radius = 150;
 
-      function rotateColors(dayColor) {
-        const idx = colors.indexOf(dayColor);
-        return [...colors.slice(idx), ...colors.slice(0, idx)];
+      // หมุนสีเพื่อให้ selected มาอยู่ที่ index 0
+      function rotateColors(selectedColor) {
+        const idx = baseColors.indexOf(selectedColor);
+        return [...baseColors.slice(idx), ...baseColors.slice(0, idx)];
       }
 
       function drawWheel() {
         const selected = birthColorSelect.value;
-        const rotated = rotateColors(selected);
+        const rotatedColors = rotateColors(selected);
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for (let i = 0; i < sliceCount; i++) {
-          // คำนวณมุมศูนย์กลางของพายแต่ละชิ้น
-          const centerAngle = -Math.PI/2 + i * step;
-          const startAngle = centerAngle - step/2;
-          const endAngle = centerAngle + step/2;
+          const startAngle = -Math.PI / 2 + i * step;
+          const endAngle = startAngle + step;
 
           // วาดพายสี
           ctx.beginPath();
           ctx.moveTo(cx, cy);
-          ctx.fillStyle = colorMap[rotated[i]];
+          ctx.fillStyle = colorMap[rotatedColors[i]];
           ctx.arc(cx, cy, radius, startAngle, endAngle);
+          ctx.closePath();
           ctx.fill();
 
-          // เขียนชื่อทักษาพยากรณ์รอบนอก (คงที่)
-          const lx = cx + (radius + 30) * Math.cos(centerAngle);
-          const ly = cy + (radius + 30) * Math.sin(centerAngle);
+          // วาดข้อความรอบนอก (คงที่)
+          const labelAngle = startAngle + step / 2;
+          const lx = cx + (radius + 30) * Math.cos(labelAngle);
+          const ly = cy + (radius + 30) * Math.sin(labelAngle);
           ctx.fillStyle = '#000';
           ctx.font = '16px Kanit';
           ctx.textAlign = 'center';
@@ -102,14 +104,14 @@
           ctx.fillText(labels[i], lx, ly);
         }
 
-        // วงกลมตรงกลาง (เว้นว่าง)
+        // วงกลมตรงกลาง
         ctx.beginPath();
         ctx.arc(cx, cy, 30, 0, 2 * Math.PI);
         ctx.fillStyle = '#fff';
         ctx.fill();
       }
 
-      // วาดครั้งแรก และผูกปุ่ม
+      // เรียกวาดครั้งแรก และผูกปุ่ม
       drawWheel();
       spinBtn.addEventListener('click', drawWheel);
     });
