@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>วงล้อทักษาพยากรณ์</title>
+  <title>วงล้อทักษาพยากรณ์ - Debug</title>
   <style>
     body {
       font-family: 'Kanit', sans-serif;
@@ -42,13 +42,17 @@
   <canvas id="wheel" width="400" height="400"></canvas>
 
   <script>
+    console.log('Script loaded');
     window.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM fully loaded');
       const canvas = document.getElementById('wheel');
+      if (!canvas) { console.error('Canvas element not found'); return; }
       const ctx = canvas.getContext('2d');
       const birthColorSelect = document.getElementById('birthColor');
       const spinBtn = document.getElementById('spinBtn');
+      console.log({ canvas, ctx, birthColorSelect, spinBtn });
 
-      // ทักษาพยากรณ์รอบนอกคงที่: ต้องเป็น array ของ string แต่ละตัวในบรรทัดเดียว
+      // ทักษาพยากรณ์รอบนอกคงที่
       const labels = [
         'คนรอบข้าง',
         'สุขภาพความมั่นคง',
@@ -80,28 +84,36 @@
       const radius = 150;
 
       function rotateColors(selectedColor) {
+        console.log('rotateColors:', selectedColor);
         const idx = baseColors.indexOf(selectedColor);
-        if (idx < 0) return baseColors; // fallback
-        return [...baseColors.slice(idx), ...baseColors.slice(0, idx)];
+        console.log('color index:', idx);
+        if (idx < 0) return baseColors;
+        const arr = [...baseColors.slice(idx), ...baseColors.slice(0, idx)];
+        console.log('rotated array:', arr);
+        return arr;
       }
 
       function drawWheel() {
+        console.log('drawWheel called');
         const selected = birthColorSelect.value;
+        console.log('selected color:', selected);
         const rotated = rotateColors(selected);
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        console.log('cleared canvas');
 
         for (let i = 0; i < sliceCount; i++) {
           const startAngle = -Math.PI / 2 + i * step;
           const endAngle = startAngle + step;
 
-          // วาดส่วนพายสี
+          // วาดพายสี
           ctx.beginPath();
           ctx.moveTo(cx, cy);
           ctx.fillStyle = colorMap[rotated[i]];
           ctx.arc(cx, cy, radius, startAngle, endAngle);
           ctx.closePath();
           ctx.fill();
+          console.log('draw slice', i, rotated[i]);
 
           // วาดข้อความทักษาพยากรณ์
           const labelAngle = startAngle + step / 2;
@@ -119,9 +131,10 @@
         ctx.arc(cx, cy, 30, 0, 2 * Math.PI);
         ctx.fillStyle = '#fff';
         ctx.fill();
+        console.log('finished drawing center');
       }
 
-      // วาดเริ่มต้นและผูกปุ่ม
+      // เรียกวาดครั้งแรก และผูกปุ่ม
       drawWheel();
       spinBtn.addEventListener('click', drawWheel);
     });
