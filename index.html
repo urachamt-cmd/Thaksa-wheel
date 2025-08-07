@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>วงล้อทักษาพยากรณ์ - Debug</title>
+  <meta charset="UTF-8" />
+  <title>วงล้อทักษาพยากรณ์</title>
   <style>
     body {
       font-family: 'Kanit', sans-serif;
@@ -32,111 +32,80 @@
     <option value="เหลือง">เหลือง (จันทร์)</option>
     <option value="ชมพู">ชมพู (อังคาร)</option>
     <option value="เขียว">เขียว (พุธ)</option>
-    <option value="ม่วง">ม่วง (เสาร์)</option>
     <option value="ส้ม">ส้ม (พฤหัสบดี)</option>
-    <option value="ดำ">ดำ (ราหู)</option>
     <option value="ฟ้า">ฟ้า (ศุกร์)</option>
+    <option value="ม่วง">ม่วง (เสาร์)</option>
+    <option value="ดำ">ดำ (ราหู)</option>
   </select>
   <button id="spinBtn">หมุนวงล้อ</button>
 
   <canvas id="wheel" width="400" height="400"></canvas>
 
   <script>
-    console.log('Script loaded');
+    // เมื่อตัวหน้าโหลดเสร็จ ให้เริ่มผูก event และวาดวงล้อครั้งแรก
     window.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM fully loaded');
-      const canvas = document.getElementById('wheel');
-      if (!canvas) { console.error('Canvas element not found'); return; }
-      const ctx = canvas.getContext('2d');
-      const birthColorSelect = document.getElementById('birthColor');
-      const spinBtn = document.getElementById('spinBtn');
-      console.log({ canvas, ctx, birthColorSelect, spinBtn });
+      const canvas = document.getElementById("wheel");
+      const ctx = canvas.getContext("2d");
+      const birthColorSelect = document.getElementById("birthColor");
+      const spinBtn = document.getElementById("spinBtn");
 
-      // ทักษาพยากรณ์รอบนอกคงที่
-      const labels = [
-        'คนรอบข้าง',
-        'สุขภาพความมั่นคง',
-        'อำนาจบารมี',
-        'ความรักเงินทอง',
-        'ทรัพย์สมบัติที่ดิน',
-        'งานอาชีพ',
-        'คนอุปถัมภ์ผู้ใหญ่',
-        'ปัญหาความยุ่งยาก'
-      ];
-
-      // สีเรียงตามเข็มนาฬิกาคงที่
-      const baseColors = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า'];
+      const colors = ["แดง", "เหลือง", "ชมพู", "เขียว", "ฟ้า", "ดำ", "ส้ม", "ม่วง"];
       const colorMap = {
-        'แดง': '#FF0000',
-        'เหลือง': '#FFD700',
-        'ชมพู': '#FFB6C1',
-        'เขียว': '#32CD32',
-        'ม่วง': '#9370DB',
-        'ส้ม': '#FF8C00',
-        'ดำ': '#000000',
-        'ฟ้า': '#87CEEB'
+        "แดง": "#FF0000",
+        "เหลือง": "#FFD700",
+        "ชมพู": "#FFB6C1",
+        "เขียว": "#32CD32",
+        "ฟ้า": "#87CEEB",
+        "ดำ": "#000000",
+        "ส้ม": "#FFA500",
+        "ม่วง": "#9370DB"
       };
 
-      const sliceCount = labels.length;
-      const step = 2 * Math.PI / sliceCount;
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const radius = 150;
+      const thaksa = ["บริวาร", "อายุ", "เดช", "ศรี", "มูละ", "อุตสาหะ", "มนตรี", "กาลกิณี"];
 
-      function rotateColors(selectedColor) {
-        console.log('rotateColors:', selectedColor);
-        const idx = baseColors.indexOf(selectedColor);
-        console.log('color index:', idx);
-        if (idx < 0) return baseColors;
-        const arr = [...baseColors.slice(idx), ...baseColors.slice(0, idx)];
-        console.log('rotated array:', arr);
-        return arr;
+      function rotateThaksa(dayColor) {
+        const idx = colors.indexOf(dayColor);
+        return [...thaksa.slice(idx), ...thaksa.slice(0, idx)];
       }
 
       function drawWheel() {
-        console.log('drawWheel called');
-        const selected = birthColorSelect.value;
-        console.log('selected color:', selected);
-        const rotated = rotateColors(selected);
+        const selectedColor = birthColorSelect.value;
+        const rotated = rotateThaksa(selectedColor);
+        const cx = canvas.width/2, cy = canvas.height/2, r = 150;
+        const step = 2 * Math.PI / 8;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        console.log('cleared canvas');
 
-        for (let i = 0; i < sliceCount; i++) {
-          const startAngle = -Math.PI / 2 + i * step;
-          const endAngle = startAngle + step;
-
-          // วาดพายสี
+        for(let i=0; i<8; i++){
+          // วาดพาย
           ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          ctx.fillStyle = colorMap[rotated[i]];
-          ctx.arc(cx, cy, radius, startAngle, endAngle);
-          ctx.closePath();
+          ctx.moveTo(cx,cy);
+          ctx.fillStyle = colorMap[colors[i]];
+          ctx.arc(cx,cy, r, i*step, (i+1)*step);
           ctx.fill();
-          console.log('draw slice', i, rotated[i]);
 
-          // วาดข้อความทักษาพยากรณ์
-          const labelAngle = startAngle + step / 2;
-          const lx = cx + (radius + 30) * Math.cos(labelAngle);
-          const ly = cy + (radius + 30) * Math.sin(labelAngle);
-          ctx.fillStyle = '#000';
-          ctx.font = '16px Kanit';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(labels[i], lx, ly);
+          // เขียนข้อความ
+          const ang = i*step + step/2;
+          const x = cx + (r+30)*Math.cos(ang);
+          const y = cy + (r+30)*Math.sin(ang);
+          ctx.fillStyle = "#000";
+          ctx.font = "16px Kanit";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(rotated[i], x, y);
         }
 
         // วงกลมตรงกลาง
         ctx.beginPath();
-        ctx.arc(cx, cy, 30, 0, 2 * Math.PI);
-        ctx.fillStyle = '#fff';
+        ctx.arc(cx, cy, 30, 0, 2*Math.PI);
+        ctx.fillStyle = "#fff";
         ctx.fill();
-        console.log('finished drawing center');
       }
 
-      // เรียกวาดครั้งแรก และผูกปุ่ม
+      // วาดครั้งแรก
       drawWheel();
-      spinBtn.addEventListener('click', drawWheel);
+      // ผูกปุ่ม
+      spinBtn.addEventListener("click", drawWheel);
     });
   </script>
 </body>
