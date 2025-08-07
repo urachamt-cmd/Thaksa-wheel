@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>วงล้อทักษาพยากรณ์</title>
   <style>
     body {
@@ -48,17 +48,18 @@
       const birthColorSelect = document.getElementById('birthColor');
       const spinBtn = document.getElementById('spinBtn');
 
-      // ทักษาพยากรณ์รอบนอกคงที่
-     const labels = [
-  'คนรอบข้าง',
-  'สุขภาพความมั่นคง',
-  'อำนาจบารมี',
-  'ความรักเงินทอง',
-  'ทรัพย์สมบัติที่ดิน',
-  'งานอาชีพ',
-  'คนอุปถัมภ์ผู้ใหญ่',
-  'ปัญหาความยุ่งยาก'
-];
+      // ทักษาพยากรณ์รอบนอกคงที่: ต้องเป็น array ของ string แต่ละตัวในบรรทัดเดียว
+      const labels = [
+        'คนรอบข้าง',
+        'สุขภาพความมั่นคง',
+        'อำนาจบารมี',
+        'ความรักเงินทอง',
+        'ทรัพย์สมบัติที่ดิน',
+        'งานอาชีพ',
+        'คนอุปถัมภ์ผู้ใหญ่',
+        'ปัญหาความยุ่งยาก'
+      ];
+
       // สีเรียงตามเข็มนาฬิกาคงที่
       const baseColors = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า'];
       const colorMap = {
@@ -78,15 +79,15 @@
       const cy = canvas.height / 2;
       const radius = 150;
 
-      // หมุนสีเพื่อให้ selected มาอยู่ที่ index 0
       function rotateColors(selectedColor) {
         const idx = baseColors.indexOf(selectedColor);
+        if (idx < 0) return baseColors; // fallback
         return [...baseColors.slice(idx), ...baseColors.slice(0, idx)];
       }
 
       function drawWheel() {
         const selected = birthColorSelect.value;
-        const rotatedColors = rotateColors(selected);
+        const rotated = rotateColors(selected);
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -94,15 +95,15 @@
           const startAngle = -Math.PI / 2 + i * step;
           const endAngle = startAngle + step;
 
-          // วาดพายสี
+          // วาดส่วนพายสี
           ctx.beginPath();
           ctx.moveTo(cx, cy);
-          ctx.fillStyle = colorMap[rotatedColors[i]];
+          ctx.fillStyle = colorMap[rotated[i]];
           ctx.arc(cx, cy, radius, startAngle, endAngle);
           ctx.closePath();
           ctx.fill();
 
-          // วาดข้อความรอบนอก (คงที่)
+          // วาดข้อความทักษาพยากรณ์
           const labelAngle = startAngle + step / 2;
           const lx = cx + (radius + 30) * Math.cos(labelAngle);
           const ly = cy + (radius + 30) * Math.sin(labelAngle);
@@ -120,13 +121,10 @@
         ctx.fill();
       }
 
-      // เรียกวาดครั้งแรก และผูกปุ่ม
+      // วาดเริ่มต้นและผูกปุ่ม
       drawWheel();
       spinBtn.addEventListener('click', drawWheel);
     });
   </script>
 </body>
 </html>
-
-
-
