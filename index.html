@@ -2,150 +2,94 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>วงล้อทักษาพยากรณ์</title>
+  <title>วงล้อทักษาพยากรณ์:อุรชา</title>
   <style>
     body {
       font-family: 'Kanit', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
       padding: 20px;
     }
-    canvas {
-      margin-top: 20px;
-      border: 1px solid #ccc;
-      border-radius: 50%;
-    }
-    select, button {
-      font-size: 18px;
-      padding: 5px 10px;
-      margin-top: 10px;
-    }
+    canvas { margin-top: 20px; border:1px solid #ccc; border-radius:50%; }
+    select, button { font-size:18px; padding:5px 10px; margin-top:10px; }
   </style>
 </head>
 <body>
   <h1>วงล้อทักษาพยากรณ์</h1>
 
-  <label for="dayOfWeek">เลือกวันเกิดของคุณ:</label>
+  <label>เลือกวันเกิด:</label>
   <select id="dayOfWeek">
-    <option value="อาทิตย์">อาทิตย์</option>
-    <option value="จันทร์">จันทร์</option>
-    <option value="อังคาร">อังคาร</option>
-    <option value="พุธ">พุธ</option>
-    <option value="พฤหัส">พฤหัสบดี</option>
-    <option value="ศุกร์">ศุกร์</option>
-    <option value="เสาร์">เสาร์</option>
+    <option>อาทิตย์</option><option>จันทร์</option><option>อังคาร</option>
+    <option>พุธ</option><option>พฤหัสบดี</option><option>ศุกร์</option><option>เสาร์</option>
   </select>
   <button id="spinBtn">หมุนวงล้อ</button>
 
-  <canvas id="wheel" width="400" height="400"></canvas>
+  <canvas id="wheel" width="550" height="550"></canvas>
 
   <script>
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', ()=>{
       const canvas = document.getElementById('wheel');
+      if (!canvas.getContext) return alert('เบราว์เซอร์นี้ไม่รองรับ Canvas');
       const ctx = canvas.getContext('2d');
-      const daySelect = document.getElementById('dayOfWeek');
-      const spinBtn = document.getElementById('spinBtn');
-
-      // ชื่อรอบนอก (คงที่) เริ่มที่ 'คนรอบข้าง' ตำแหน่ง 12 นาฬิกา
-      const labels = [
-        'คนรอบข้าง',
-        'สุขภาพความมั่นคง',
-        'อำนาจบารมี',
-        'ความรักเงินทอง',
-        'ทรัพย์สินที่ดิน',
-        'งานอาชีพ',
-        'คนอุปถัมภ์ผู้ใหญ่',
-        'ปัญหาความยุ่งยาก'
-      ];
-
-      // สีวงในเรียงตามเข็มนาฬิกา (คงที่)
-      const baseColors = [
-        'แดง','เหลือง','ชมพู','เขียว',
-        'ม่วง','ส้ม','ดำ','ฟ้า'
-      ];
-      const colorMap = {
-        'แดง':   '#FF0000',
-        'เหลือง':'#FFD700',
-        'ชมพู':  '#FFB6C1',
-        'เขียว': '#32CD32',
-        'ม่วง':  '#9370DB',
-        'ส้ม':   '#FF8C00',
-        'ดำ':    '#000000',
-        'ฟ้า':   '#87CEEB'
-      };
-
-      // แม็ปวันเกิด → สี
       const dayToColor = {
-        'อาทิตย์': 'แดง',
-        'จันทร์':  'เหลือง',
-        'อังคาร':  'ชมพู',
-        'พุธ':     'เขียว',
-        'พฤหัสบดี':'ส้ม',
-        'ศุกร์':   'ฟ้า',
-        'เสาร์':   'ม่วง'
+        'อาทิตย์':'แดง','จันทร์':'เหลือง','อังคาร':'ชมพู',
+        'พุธ':'เขียว','พฤหัสบดี':'ส้ม','ศุกร์':'ฟ้า','เสาร์':'ม่วง'
       };
-
+      const colorMap = {
+        'แดง':'#FF0000','เหลือง':'#FFD700','ชมพู':'#FFB6C1',
+        'เขียว':'#32CD32','ม่วง':'#9370DB','ส้ม':'#FF8C00',
+        'ดำ':'#000000','ฟ้า':'#87CEEB'
+      };
+      const labels = [
+        'คนรอบข้าง','สุขภาพความมั่นคง','อำนาจบารมี','ความรักเงินทอง',
+        'ทรัพย์สินที่ดิน','งานอาชีพ','คนอุปถัมภ์ผู้ใหญ่','ปัญหาความยุ่งยาก'
+      ];
+      const baseColors = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า'];
       const sliceCount = labels.length;
-      const step = 2 * Math.PI / sliceCount;
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const radius = 150;
+      const step = 2*Math.PI/sliceCount;
+      const cx=canvas.width/2, cy=canvas.height/2;
+      const rInner=140;
+      const rText=rInner+15;
 
-      // หมุน array baseColors ให้สีที่เลือกมาอยู่ตำแหน่งแรก
-      function rotateColors(selectedColor) {
-        const idx = baseColors.indexOf(selectedColor);
-        if (idx < 0) return baseColors;
-        return [
-          ...baseColors.slice(idx),
-          ...baseColors.slice(0, idx)
-        ];
-      }
+      function rotate(arr, n){ return arr.slice(n).concat(arr.slice(0,n)); }
 
-      function drawWheel() {
-        const day = daySelect.value;
-        const mainColor = dayToColor[day];
-        const colors = rotateColors(mainColor);
+      function draw(){
+        const day = document.getElementById('dayOfWeek').value;
+        const main = dayToColor[day];
+        const idx = baseColors.indexOf(main);
+        const colors = rotate(baseColors, idx<0?0:idx);
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
 
-        // วาดวงในสี
-        for (let i = 0; i < sliceCount; i++) {
-          const startA = -Math.PI/2 + i * step;
-          const endA   = startA + step;
-
-          ctx.beginPath();
-          ctx.moveTo(cx, cy);
+        // วาดพายวงใน
+        for(let i=0;i<sliceCount;i++){
+          const a0 = -Math.PI/2 + i*step, a1=a0+step;
+          ctx.beginPath(); ctx.moveTo(cx,cy);
           ctx.fillStyle = colorMap[colors[i]];
-          ctx.arc(cx, cy, radius, startA, endA);
-          ctx.closePath();
-          ctx.fill();
+          ctx.arc(cx,cy,rInner,a0,a1);
+          ctx.fill(); ctx.closePath();
         }
 
-        // วาดชื่อรอบนอก คงที่
-        for (let i = 0; i < sliceCount; i++) {
-          const ang = -Math.PI/2 + i * step + step/2;
-          const x = cx + (radius + 30) * Math.cos(ang);
-          const y = cy + (radius + 30) * Math.sin(ang);
-
-          ctx.fillStyle = '#000';
-          ctx.font = '16px Kanit';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
+        // วาดข้อความขอบวงในครึ่งทาง
+        ctx.font='16px Kanit'; ctx.textBaseline='middle';
+        for(let i=0;i<sliceCount;i++){
+          const ang = -Math.PI/2 + i*step + step/2;
+          const x = cx + rText*Math.cos(ang),
+                y = cy + rText*Math.sin(ang);
+          if      (Math.cos(ang)>0) ctx.textAlign='left';
+          else if (Math.cos(ang)<0) ctx.textAlign='right';
+          else                       ctx.textAlign='center';
+          ctx.fillStyle='#000';
           ctx.fillText(labels[i], x, y);
         }
 
-        // วงกลมตรงกลาง (เว้นว่าง)
+        // วงตรงกลาง
         ctx.beginPath();
-        ctx.arc(cx, cy, 30, 0, 2 * Math.PI);
-        ctx.fillStyle = '#fff';
-        ctx.fill();
+        ctx.arc(cx,cy,40,0,2*Math.PI);
+        ctx.fillStyle='#fff'; ctx.fill();
       }
 
-      // วาดครั้งแรก
-      drawWheel();
-      // ผูกปุ่ม
-      spinBtn.addEventListener('click', drawWheel);
+      document.getElementById('spinBtn').addEventListener('click', draw);
+      draw();
     });
   </script>
 </body>
