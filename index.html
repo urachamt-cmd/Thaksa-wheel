@@ -1,96 +1,233 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>วงล้อทักษาพยากรณ์:อุรชา</title>
-  <style>
-    body {
-      font-family: 'Kanit', sans-serif;
-      display: flex; flex-direction: column; align-items: center;
-      padding: 20px;
-    }
-    canvas { margin-top: 20px; border:1px solid #ccc; border-radius:50%; }
-    select, button { font-size:18px; padding:5px 10px; margin-top:10px; }
-  </style>
+<meta charset="UTF-8">
+<title>วงล้อทักษาพยากรณ์โดยอุรชา ภู่ภักดี</title>
+<style>
+  body {
+    font-family: 'Kanit', sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
+  canvas {
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+  }
+  select, input, button {
+    font-size: 16px;
+    margin: 5px;
+    padding: 5px 10px;
+  }
+  #lastUpdated { font-size: 10px; color:#000; margin: 6px 0 10px; }
+</style>
 </head>
 <body>
-  <h1>วงล้อทักษาพยากรณ์</h1>
 
-  <label>เลือกวันเกิด:</label>
-  <select id="dayOfWeek">
-    <option>อาทิตย์</option><option>จันทร์</option><option>อังคาร</option>
-    <option>พุธ</option><option>พฤหัสบดี</option><option>ศุกร์</option><option>เสาร์</option>
+<h1>วงล้อทักษาพยากรณ์โดยอุรชา ภู่ภักดี</h1>
+<div id="lastUpdated"></div>
+
+<div>
+  <label>วันเกิด: </label>
+  <!-- value = สีวันเกิด -->
+  <select id="birthDay">
+    <option value="แดง">อาทิตย์</option>
+    <option value="เหลือง">จันทร์</option>
+    <option value="ชมพู">อังคาร</option>
+    <option value="เขียว">พุธ</option>
+    <option value="ม่วง">เสาร์</option>
+    <option value="ส้ม">พฤหัสบดี</option>
+    <option value="ฟ้า">ศุกร์</option>
   </select>
-  <button id="spinBtn">หมุนวงล้อ</button>
+  <label>อายุ: </label>
+  <input type="number" id="age" min="1" max="120" style="width:80px" placeholder="เช่น 50">
+  <button id="transitBtn">จรปี</button>
+  <button id="resetBtn">Reset</button>
+</div>
 
-  <canvas id="wheel" width="550" height="550"></canvas>
+<canvas id="wheel" width="600" height="600"></canvas>
 
-  <script>
-    window.addEventListener('DOMContentLoaded', ()=>{
-      const canvas = document.getElementById('wheel');
-      if (!canvas.getContext) return alert('เบราว์เซอร์นี้ไม่รองรับ Canvas');
-      const ctx = canvas.getContext('2d');
-      const dayToColor = {
-        'อาทิตย์':'แดง','จันทร์':'เหลือง','อังคาร':'ชมพู',
-        'พุธ':'เขียว','พฤหัสบดี':'ส้ม','ศุกร์':'ฟ้า','เสาร์':'ม่วง'
-      };
-      const colorMap = {
-        'แดง':'#FF0000','เหลือง':'#FFD700','ชมพู':'#FFB6C1',
-        'เขียว':'#32CD32','ม่วง':'#9370DB','ส้ม':'#FF8C00',
-        'ดำ':'#000000','ฟ้า':'#87CEEB'
-      };
-      const labels = [
-        'คนรอบข้าง','สุขภาพความมั่นคง','อำนาจบารมี','ความรักเงินทอง',
-        'ทรัพย์สินที่ดิน','งานอาชีพ','คนอุปถัมภ์ผู้ใหญ่','ปัญหาความยุ่งยาก'
-      ];
-      const baseColors = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า'];
-      const sliceCount = labels.length;
-      const step = 2*Math.PI/sliceCount;
-      const cx=canvas.width/2, cy=canvas.height/2;
-      const rInner=140;
-      const rText=rInner+15;
+<script>
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
 
-      function rotate(arr, n){ return arr.slice(n).concat(arr.slice(0,n)); }
+const birthDaySelect = document.getElementById('birthDay');
+const ageInput = document.getElementById('age');
+const transitBtn = document.getElementById('transitBtn');
+const resetBtn = document.getElementById('resetBtn');
+const lastUpdatedEl = document.getElementById('lastUpdated');
 
-      function draw(){
-        const day = document.getElementById('dayOfWeek').value;
-        const main = dayToColor[day];
-        const idx = baseColors.indexOf(main);
-        const colors = rotate(baseColors, idx<0?0:idx);
+const labels = [
+  'คนรอบข้าง','สุขภาพความมั่นคง','อำนาจบารมี','ความรักเงินทอง',
+  'ทรัพย์สินที่ดิน','งานอาชีพ','คนอุปถัมภ์ผู้ใหญ่','ปัญหาความยุ่งยาก'
+];
 
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+const baseColors = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า'];
+const colorMap = {
+  'แดง':'#FF0000','เหลือง':'#FFD700','ชมพู':'#FFB6C1','เขียว':'#32CD32',
+  'ม่วง':'#9370DB','ส้ม':'#FF8C00','ดำ':'#000000','ฟ้า':'#87CEEB'
+};
 
-        // วาดพายวงใน
-        for(let i=0;i<sliceCount;i++){
-          const a0 = -Math.PI/2 + i*step, a1=a0+step;
-          ctx.beginPath(); ctx.moveTo(cx,cy);
-          ctx.fillStyle = colorMap[colors[i]];
-          ctx.arc(cx,cy,rInner,a0,a1);
-          ctx.fill(); ctx.closePath();
-        }
+// ขนาดและรัศมี (วงสีเล็ก + ข้อความชิดเข้า)
+const cx = canvas.width/2;
+const cy = canvas.height/2;
+const radiusInner   = 140;               // วงสี
+const radiusTextMid = radiusInner + 60;  // วงข้อความวงใน
+const radiusTransit = radiusInner + 90;  // วงข้อความวงนอก
+const sliceCount = labels.length;
+const step = 2*Math.PI/sliceCount;
 
-        // วาดข้อความขอบวงในครึ่งทาง
-        ctx.font='16px Kanit'; ctx.textBaseline='middle';
-        for(let i=0;i<sliceCount;i++){
-          const ang = -Math.PI/2 + i*step + step/2;
-          const x = cx + rText*Math.cos(ang),
-                y = cy + rText*Math.sin(ang);
-          if      (Math.cos(ang)>0) ctx.textAlign='left';
-          else if (Math.cos(ang)<0) ctx.textAlign='right';
-          else                       ctx.textAlign='center';
-          ctx.fillStyle='#000';
-          ctx.fillText(labels[i], x, y);
-        }
+// state วงจร
+let showTransit = false;
+let transitLabels = [];
 
-        // วงตรงกลาง
-        ctx.beginPath();
-        ctx.arc(cx,cy,40,0,2*Math.PI);
-        ctx.fillStyle='#fff'; ctx.fill();
-      }
+// timestamp (ใต้หัวข้อ)
+function thaiTimestamp(){
+  const d=new Date();
+  const days=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  const months=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const dayName=days[d.getDay()], date=d.getDate(), month=months[d.getMonth()], year=d.getFullYear()+543;
+  const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+  return `แก้ไขล่าสุด: ${dayName} ${date} ${month} ${year} ${hh}:${mm}`;
+}
+function updateLastUpdated(){ lastUpdatedEl.textContent = thaiTimestamp(); }
 
-      document.getElementById('spinBtn').addEventListener('click', draw);
-      draw();
-    });
-  </script>
+// หมุนสีให้ “สีวันเกิด” ไปอยู่ที่ชิ้นพาย index 0 (12 นาฬิกา)
+function rotateColors(selectedColor) {
+  const idx = baseColors.indexOf(selectedColor);
+  return [...baseColors.slice(idx), ...baseColors.slice(0, idx)];
+}
+
+// ลดรูปอายุ → 1..10
+function reduceAgeTo1to10(n){
+  let x = Math.max(0, parseInt(n || 0, 10) || 0);
+  while (x > 10){
+    x = String(x).split('').map(Number).reduce((a,b)=>a+b,0);
+  }
+  return Math.max(1, Math.min(10, x || 1));
+}
+
+/**
+ * คำนวณฉลากวงนอก “จร” โดยแมปสี → ชิ้นพายจาก rotatedColors
+ * - ลำดับสี 9 ช่อง: 8 สีจริง + "(ไม่มีสี)"
+ * - ตั้งต้น: สีวันเกิด = 1 แล้วนับไปตามอายุที่ลดรูป
+ * - ถ้าตก "(ไม่มีสี)" → คนรอบข้างจร ไปที่ "ม่วง" ทันที
+ * - เดินไป 8 หมวด โดยข้าม "(ไม่มีสี)"
+ * - วาง “…จร” ลงใน array ตาม index ชิ้นพายจริง (rotated.indexOf(สีนั้น))
+ */
+function calcTransitLabels(selectedColor, age) {
+  const colorOrder9 = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า','(ไม่มีสี)'];
+  const rotated = rotateColors(selectedColor);
+  const n = reduceAgeTo1to10(age);
+
+  const start9 = colorOrder9.indexOf(selectedColor);
+  let pos = (start9 + (n - 1)) % colorOrder9.length;
+  if (colorOrder9[pos] === '(ไม่มีสี)') {
+    pos = colorOrder9.indexOf('ม่วง');
+  }
+
+  const seqColors = [];
+  let i = pos;
+  while (seqColors.length < 8) {
+    const name = colorOrder9[i % colorOrder9.length];
+    if (name !== '(ไม่มีสี)') seqColors.push(name);
+    i++;
+  }
+
+  const transitBase = [
+    'คนรอบข้างจร','สุขภาพความมั่นคงจร','อำนาจบารมีจร','ความรักเงินทองจร',
+    'ทรัพย์สินที่ดินจร','งานอาชีพจร','คนอุปถัมภ์ผู้ใหญ่จร','ปัญหาความยุ่งยากจร'
+  ];
+
+  const result = new Array(8).fill('');
+  for (let k=0; k<8; k++){
+    const colorName = seqColors[k];
+    const sliceIdx = rotated.indexOf(colorName);
+    if (sliceIdx !== -1) result[sliceIdx] = transitBase[k];
+  }
+  return result;
+}
+
+function drawWheel() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const selected = birthDaySelect.value;
+  const rotatedColors = rotateColors(selected);
+
+  // วาดวงสี (พาย 8 ชิ้น)
+  for (let i=0;i<sliceCount;i++) {
+    const startAngle = -Math.PI/2 + i*step;
+    const endAngle = startAngle + step;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.fillStyle = colorMap[rotatedColors[i]];
+    ctx.arc(cx,cy,radiusInner,startAngle,endAngle);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // ข้อความวงใน (ฟอนต์เท่ากับวงนอก) + “ปัญหาความยุ่งยาก” เป็นสีแดงเสมอ
+  ctx.font = '14px Kanit';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (let i=0;i<sliceCount;i++) {
+    const angle = -Math.PI/2 + i*step + step/2;
+    const lx = cx + radiusTextMid*Math.cos(angle);
+    const ly = cy + radiusTextMid*Math.sin(angle);
+    const text = labels[i];
+    ctx.fillStyle = (text === 'ปัญหาความยุ่งยาก') ? '#FF0000' : '#000000';
+    ctx.fillText(text, lx, ly);
+  }
+
+  // วงนอก “จร” — สีฟอนต์น้ำเงิน ยกเว้น “ปัญหาความยุ่งยากจร” เป็นสีแดง
+  if (showTransit) {
+    ctx.font = '14px Kanit';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (let i=0;i<sliceCount;i++) {
+      const angle = -Math.PI/2 + i*step + step/2;
+      const tx = cx + radiusTransit*Math.cos(angle);
+      const ty = cy + radiusTransit*Math.sin(angle);
+      const t = transitLabels[i] || '';
+      if (!t) continue;
+      ctx.fillStyle = (t === 'ปัญหาความยุ่งยากจร') ? '#FF0000' : '#0D47A1';
+      ctx.fillText(t, tx, ty);
+    }
+  }
+
+  updateLastUpdated();
+}
+
+// เปลี่ยนวันเกิด → หมุนวงล้อใหม่ + ล้างอายุ + ซ่อนวงนอก
+birthDaySelect.addEventListener('change', ()=>{
+  ageInput.value = '';       // ล้างช่องอายุ
+  showTransit = false;       // ไม่แสดงวงนอก
+  transitLabels = [];        // ล้างข้อมูลวงนอก
+  drawWheel();
+});
+
+// กด “จรปี” → คำนวณและแสดงวงนอก
+transitBtn.addEventListener('click', ()=>{
+  const ageVal = parseInt(ageInput.value, 10);
+  if (!isNaN(ageVal) && ageVal > 0) {
+    transitLabels = calcTransitLabels(birthDaySelect.value, ageVal);
+    showTransit = true;
+    drawWheel();
+  } else {
+    alert('กรุณากรอกอายุเป็นตัวเลขมากกว่า 0');
+  }
+});
+
+// Reset → ซ่อนวงนอก + ล้างช่องอายุ (ข้อ 1)
+resetBtn.addEventListener('click', ()=>{
+  ageInput.value = '';       // ล้างช่องอายุ
+  showTransit = false;
+  transitLabels = [];
+  drawWheel();
+});
+
+// เริ่มต้น
+drawWheel();
+</script>
+
 </body>
 </html>
