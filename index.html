@@ -41,7 +41,7 @@
   </select>
   <label>อายุ: </label>
   <input type="number" id="age" min="1" max="120" style="width:80px" placeholder="เช่น 50">
-  <button id="transitBtn">พยากรณ์ตามอายุ(จรปี)</button>
+  <button id="transitBtn">พยากรณ์ตามอายุ(จร)</button>
   <button id="resetBtn">Reset</button>
 </div>
 
@@ -59,7 +59,7 @@ const lastUpdatedEl = document.getElementById('lastUpdated');
 
 const labels = [
   'คนรอบข้าง','สุขภาพ/ความมั่นคง','อำนาจบารมี','ความรัก/เงินทอง',
-  'ทรัพย์สินที่ดิน','งานอาชีพ','คนอุปถัมภ์/ผู้ใหญ่','ปัญหาความยุ่งยาก'
+  'ทรัพย์สิน/ที่ดิน','งานอาชีพ','คนอุปถัมภ์/ผู้ใหญ่','ปัญหาความยุ่งยาก'
 ];
 
 const baseColors = ['แดง','เหลือง','ชมพู','เขียว','ม่วง','ส้ม','ดำ','ฟ้า'];
@@ -135,8 +135,8 @@ function calcTransitLabels(selectedColor, age) {
   }
 
   const transitBase = [
-    'คนรอบข้าง(จรปี)','สุขภาพ/ความมั่นคง(จรปี)','อำนาจบารมี(จรปี)','ความรัก/เงินทอง(จรปี)',
-    'ทรัพย์สินที่ดิน(จรปี)','งานอาชีพ(จรปี)','คนอุปถัมภ์/ผู้ใหญ่(จรปี)','ปัญหาความยุ่งยาก(จรปี)'
+    'คนรอบข้างจร','สุขภาพ/ความมั่นคงจร','อำนาจบารมีจร','ความรัก/เงินทองจร',
+    'ทรัพย์สิน/ที่ดินจร','งานอาชีพจร','คนอุปถัมภ์/ผู้ใหญ่จร','ปัญหาความยุ่งยากจร'
   ];
 
   const result = new Array(8).fill('');
@@ -189,7 +189,7 @@ function drawWheel() {
       const ty = cy + radiusTransit*Math.sin(angle);
       const t = transitLabels[i] || '';
       if (!t) continue;
-     ctx.fillStyle = tNorm.includes('ปัญหาความยุ่งยาก') ? '#FF0000' : '#0D47A1';
+      ctx.fillStyle = (t === 'ปัญหาความยุ่งยากจร') ? '#FF0000' : '#0D47A1';
       ctx.fillText(t, tx, ty);
     }
   }
@@ -231,6 +231,3 @@ drawWheel();
 
 </body>
 </html>
-
-
-
