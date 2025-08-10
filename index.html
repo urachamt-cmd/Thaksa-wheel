@@ -58,7 +58,7 @@ const resetBtn = document.getElementById('resetBtn');
 const lastUpdatedEl = document.getElementById('lastUpdated');
 
 const labels = [
-  'คนรอบข้าง','สุขภาพความมั่นคง','อำนาจบารมี','ความรักเงินทอง',
+  'คนรอบข้าง','สุขภาพ/ความมั่นคง','อำนาจบารมี','ความรัก/เงินทอง',
   'ทรัพย์สินที่ดิน','งานอาชีพ','คนอุปถัมภ์/ผู้ใหญ่','ปัญหาความยุ่งยาก'
 ];
 
@@ -135,7 +135,7 @@ function calcTransitLabels(selectedColor, age) {
   }
 
   const transitBase = [
-    'คนรอบข้าง(จรปี)','สุขภาพความมั่นคง(จรปี)','อำนาจบารมี(จรปี)','ความรักเงินทอง(จรปี)',
+    'คนรอบข้าง(จรปี)','สุขภาพ/ความมั่นคง(จรปี)','อำนาจบารมี(จรปี)','ความรัก/เงินทอง(จรปี)',
     'ทรัพย์สินที่ดิน(จรปี)','งานอาชีพ(จรปี)','คนอุปถัมภ์/ผู้ใหญ่(จรปี)','ปัญหาความยุ่งยาก(จรปี)'
   ];
 
@@ -189,7 +189,7 @@ function drawWheel() {
       const ty = cy + radiusTransit*Math.sin(angle);
       const t = transitLabels[i] || '';
       if (!t) continue;
-      ctx.fillStyle = (t === 'ปัญหาความยุ่งยากจร') ? '#FF0000' : '#0D47A1';
+      ctx.fillStyle = (t === 'ปัญหาความยุ่งยาก(จรปี)') ? '#FF0000' : '#0D47A1';
       ctx.fillText(t, tx, ty);
     }
   }
@@ -231,4 +231,5 @@ drawWheel();
 
 </body>
 </html>
+
 
