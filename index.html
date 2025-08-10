@@ -189,7 +189,7 @@ function drawWheel() {
       const ty = cy + radiusTransit*Math.sin(angle);
       const t = transitLabels[i] || '';
       if (!t) continue;
-      ctx.fillStyle = (t === 'ปัญหาความยุ่งยาก(จรปี)') ? '#FF0000' : '#0D47A1';
+     ctx.fillStyle = tNorm.includes('ปัญหาความยุ่งยาก') ? '#FF0000' : '#0D47A1';
       ctx.fillText(t, tx, ty);
     }
   }
@@ -231,5 +231,6 @@ drawWheel();
 
 </body>
 </html>
+
 
 
